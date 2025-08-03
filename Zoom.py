@@ -2,10 +2,11 @@
 from PIL import Image, ImageTk, ImageDraw
 
 class zoom_fuction:
-    def __init__(self, canvas, image, canvas_image):
+    def __init__(self, canvas, image, canvas_image, parent):
         self.canvas = canvas
         self.image = image
         self.canvas_image = canvas_image
+        self.parent = parent
 
         self.drag_start = None
 
@@ -37,6 +38,7 @@ class zoom_fuction:
         new_img_y = canvas_mouse_y - offset_y * self.zoom_step if event.delta > 0 else canvas_mouse_y - offset_y / self.zoom_step
 
         self.canvas.coords(self.canvas_image, new_img_x, new_img_y)
+        self.parent.update_grid()
 
     def on_zoom_linux(self, event):
         if event.num == 4:
@@ -63,7 +65,6 @@ class zoom_fuction:
         self.canvas.coords(self.canvas_image, 0, 0)
 
 
-
     def start_drag(self, event):
         self.drag_start = (event.x, event.y)
 
@@ -73,3 +74,4 @@ class zoom_fuction:
             dy = event.y - self.drag_start[1]
             self.canvas.move(self.canvas_image, dx, dy)
             self.drag_start = (event.x, event.y)
+            self.parent.update_grid()
