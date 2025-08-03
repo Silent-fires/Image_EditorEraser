@@ -4,6 +4,7 @@ import os
 
 from tkinter import filedialog   #Separate submodule, so requires you to import it explicitly.
 from PIL import Image, ImageTk, ImageDraw
+from Zoom import zoom_fuction as zf
 
 class EraserApp:
     def __init__(self, root):
@@ -25,11 +26,16 @@ class EraserApp:
         self.canvas.pack()
         self.canvas_image = self.canvas.create_image(0, 0, anchor="nw", image=self.tk_image)
 
-
+        # Create zoom handler
+        self.zf_h = zf(self.canvas, self.image, self.canvas_image)
         #zoom
-        self.canvas.bind("<MouseWheel>", self.on_zoom)         # Windows / macOS
-        self.canvas.bind("<Button-4>", self.on_zoom_linux)     # Linux scroll up
-        self.canvas.bind("<Button-5>", self.on_zoom_linux)     # Linux scroll down
+        self.canvas.bind("<MouseWheel>", self.zf_h.on_zoom)         # Windows / macOS
+        self.canvas.bind("<Button-4>", self.zf_h.on_zoom_linux)     # Linux scroll up
+        self.canvas.bind("<Button-5>", self.zf_h.on_zoom_linux)     # Linux scroll down
+
+        #moving
+        self.canvas.bind("<ButtonPress-3>", self.zf_h.start_drag)  # Right mouse press
+        self.canvas.bind("<B3-Motion>", self.zf_h.drag_image)      # Right mouse drag
 
 
         # Store the start point of the rectangle
@@ -48,6 +54,10 @@ class EraserApp:
         # Cancel button
         self.cancel_button = tk.Button(root, text="Cancel Erase", command=self.cancel_selection)
         self.cancel_button.pack(side="left", padx=5)
+
+        # Reset Zoom button
+        self.reset_zoom_button = tk.Button(root, text="Reset Zoom", command=self.zf_h.reset_zoom)
+        self.reset_zoom_button.pack(side="right", padx=5)
 
 
     def on_press(self, event):
